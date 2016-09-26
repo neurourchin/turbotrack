@@ -1,0 +1,48 @@
+shortcutkeys.txt
+
+ Created on: Jan 28, 2010
+     Author: andy
+
+- o: on/off
+- r: toggle recording
+- f: toggle floodlight
+- spacebar: toggle DLP
+
+- j: decrement origin in x
+- l: increment origin in x
+- k: decerment origin in y
+- i: increment origin in y
+- a: decrement radius in x
+- d: increment radius in x
+- w: increment radius in y
+- s: decrement radius in y
+
+- F: flip head tail ( only persists if temporal head/tail intellegence is also enabled)
+- t: toggle temporal head/tail inteligence
+
+- p: toggle protocol
+- ,: decrement protocol step
+- .: increment protocol step
+
+- [: decrement threshold
+- ]: increment threshold
+
+- v: invert selection 
+- V: reflect illumination pattern over centerline (flip dorsal ventral)
+
+- /: timed pulse illumination
+- <: decrement duration of pulsed illumination
+- >: increment duration of pulsed illumination
+
+- <tab>: Turn stage tracker on/off
+- X: increment stage velocity
+- Z: decrement stage velocity 
+- <del>: emergency stage shutoff
+
+- G: increment Gaussian Radius size
+- g: decrement Gaussian Radius size
+
+- u: start/stop a head-to-tail illumination sweep
+- U: toggle direction of head-to-tail illumination sweep
+
+- q: toggle timed secondary protocol step

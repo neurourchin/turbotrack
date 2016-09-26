@@ -1,0 +1,1 @@
+robocopy E:\ C:\Data\ /COPYALL /E /DCOPY:T /mot:1 /r:2 /w:5
