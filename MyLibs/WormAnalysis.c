@@ -628,7 +628,7 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 	if (pixelsum.val[0]==0){
 	
 			if (Worm->isPresent==1){
-				printf("Lost the worm!\nFailed to find any fluorescence. Maybe the threshold is too high? \n");
+				//printf("Lost the worm!\nFailed to find any fluorescence. Maybe the threshold is too high? \n");
 			}
 			Worm->isPresent=0;
 			return ;
