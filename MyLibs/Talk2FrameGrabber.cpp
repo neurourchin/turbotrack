@@ -76,7 +76,7 @@ FrameGrabber* CreateFrameGrabberObject(){
 FrameGrabber* TurnOnFrameGrabber(){
 	FrameGrabber* fg= CreateFrameGrabberObject();
 	InitializeFrameGrabber(fg);
-	FrameGrabberSetRegionOfInterest(fg,0,0,2048,1088); 
+	FrameGrabberSetRegionOfInterest(fg,0,0,1024,544); //2048 1088
 	PrepareFrameGrabberForAcquire(fg);
 	return fg;
 }
@@ -159,8 +159,6 @@ int PrepareFrameGrabberForAcquire(FrameGrabber* fg){
 		BFRC ret = CiBrdInquire(fg->hBoard,CiCamInqXSize,&(fg->xsize));
 		// printf("%d\n",ret);
 		CiBrdInquire(fg->hBoard,CiCamInqYSize0,&(fg->ysize)); 
-		fg->xsize = 2040;
-		fg->ysize = 1088;
 		printf("%d\n",fg->xsize);
 		printf("%d\n",fg->ysize);
 

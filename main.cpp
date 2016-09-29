@@ -345,7 +345,7 @@ UINT Thread(LPVOID lpdwParam) {
 	cvWaitKey(30);
 //	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
-	printf("Beginning ProtocolStep Display\n");
+	//printf("Beginning ProtocolStep Display\n");
 	DispThreadHasStarted = TRUE;
 	cvWaitKey(30);
 
@@ -362,7 +362,7 @@ UINT Thread(LPVOID lpdwParam) {
 	// }
 
 	printf("DispThread: invoking stage...\n ");
-	//InvokeStage(exp);
+	InvokeStage(exp);
 
 	printf("DispThread: Starting loop\n");
 
@@ -383,8 +383,8 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().tic("DisplayThreadGuts");
 			TICTOC::timer().tic("cvShowImage");
 			if (exp->Params->OnOff){
-				cvShowImage(exp->WinDisp, exp->HUDS);
-				cvShowImage(exp->WinDisp2,exp->Worm->ImgThresh);//exp->CurrentSelectedImg);
+				cvShowImage(exp->WinDisp, exp->SubSampled);
+				//cvShowImage(exp->WinDisp2,exp->Worm->ImgThresh);//exp->CurrentSelectedImg);
 			}else{
 				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
 			}
@@ -412,7 +412,7 @@ UINT Thread(LPVOID lpdwParam) {
 			UpdateGUI(exp);
 			TICTOC::timer().toc("UpdatteGUI");
 
-			key=cvWaitKey(20); //This controls how often the stage and GUI get updated
+			key=cvWaitKey(10); //This controls how often the stage and GUI get updated
 
 
 			if (MainThreadHasStopped==1) continue;
@@ -440,19 +440,20 @@ UINT Thread(LPVOID lpdwParam) {
 			if(EverySoOften(k,1)){ //This determines how often the stage is updated
 				
 				
-				/* if (exp->e != 0 && exp->stageIsPresent) {
+				if (exp->e != 0 && exp->stageIsPresent) {
 					printf("\tAuto-safety STAGE SHUTOFF from dispThread!\n");
 					ShutOffStage(exp);
-				} else { */
+				} else {
 				
 					/** Do the Stage Tracking **/
 					TICTOC::timer().tic("HandleStageTracker()");
+					//printf("NOW do stage tracking------------------- \n");
 					HandleStageTracker(exp);
-					 TICTOC::timer().toc("TimeBetStageUpdate()");
-					 TICTOC::timer().tic("TimeBetStageUpdate()");
+					 //TICTOC::timer().toc("TimeBetStageUpdate()");
+					 //TICTOC::timer().tic("TimeBetStageUpdate()");
 					TICTOC::timer().toc("HandleStageTracker()");
 				//printf("Stage tracker took: %d \n\n",TICTOC::clock("HandleStageTracker()"));
-				//}
+				}
 
 				/** Write the Recent Frame Number to File to be accessed by the Annotation System **/
 				TICTOC::timer().tic("WriteRecentFrameNumberToFile()");

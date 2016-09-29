@@ -534,7 +534,7 @@ version.o : $(MyLibs)/version.c $(MyLibs)/version.h
 #Trick so that git generates a version.c file
 $(MyLibs)/version.c: FORCE 
 	$(GIT) rev-parse HEAD | awk ' BEGIN {print "#include \"version.h\""} {print "extern const char * build_git_sha = \"" $$0"\";"} END {}' > $(MyLibs)/version.c
-	date | awk 'BEGIN {} {print "extern const char * build_git_time = \""$$0"\";"} {print "extern const char * build_git_sha = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
+	date | awk 'BEGIN {} {print "extern const char * build_git_time = \""$$0"\";"} END {} ' >> $(MyLibs)/version.c	
 
 FORCE:
 

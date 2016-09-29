@@ -488,7 +488,7 @@ int WriteRecentFrameNumberToFile(Experiment* exp);
 /*
  * Scan for the USB device.
  */
-// int InvokeStage(Experiment* exp);
+int InvokeStage(Experiment* exp);
 
 /*
  * Update the Stage Tracker.
