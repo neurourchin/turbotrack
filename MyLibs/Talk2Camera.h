@@ -65,11 +65,11 @@ struct CamDataStruct {
 /*
  * Rows and pixels of camera
  */
-#define CCDSIZEX 1024//2048
-#define CCDSIZEY 544//1088
+#define CCDSIZEX 545//1024//2048
+#define CCDSIZEY 429//544//1088
 
-#define NSIZEX 1024//2048
-#define NSIZEY 544
+#define NSIZEX 545//1024//2048
+#define NSIZEY 429//544
 
 /*
  * Initalizes the library and provides the  license key for

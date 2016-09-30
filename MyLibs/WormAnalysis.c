@@ -580,7 +580,6 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 	 *  d) not using CV_GAUSSIAN for smoothing
 	 */
 	
-
 	/** Crop the Image based on the user defined aperture **/
 	IplImage* OrigCropped=cvCreateImage(cvGetSize(Worm->ImgOrig),IPL_DEPTH_8U,1);
 	CvPoint Pt = cvPoint((*prevpt).x,(*prevpt).y);
@@ -593,7 +592,7 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 			 cvCircle(CircleROI,*prevpt,25,cvScalar(255,255,255),-1,CV_AA,0);
 			 printf("Previous centroid is (%d,%d) \n",Pt.x,Pt.y);//(*prevpt).x,(*prevpt).y
 		 } else {
-		cvCircle(CircleROI,cvPoint(250,200),100,cvScalar(255,255,255),-1,CV_AA,0);		
+		cvCircle(CircleROI,cvPoint(224,244),100,cvScalar(255,255,255),-1,CV_AA,0);		
 			//printf("No previous centroid position found! \n");
 		}
 		
@@ -628,7 +627,7 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 	if (pixelsum.val[0]==0){
 	
 			if (Worm->isPresent==1){
-				//printf("Lost the worm!\nFailed to find any fluorescence. Maybe the threshold is too high? \n");
+				printf("Lost the worm!\nFailed to find any fluorescence. Maybe the threshold is too high? \n");
 			}
 			Worm->isPresent=0;
 			return ;
@@ -646,7 +645,6 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 		//TICTOC::timer().toc("DilateAndErode");
 	}
 	
-	
 	/** Find Contours **/
 	CvSeq* contours;
 	IplImage* TempImage=cvCreateImage(cvGetSize(Worm->ImgThresh),IPL_DEPTH_8U,1);
@@ -661,7 +659,7 @@ void FindWormBoundary(WormAnalysisData* Worm, WormAnalysisParam* Params, CvPoint
 	if (contours) largestContour(contours,&rough);
 	TICTOC::timer().toc("cvLargestContour");
 	cvReleaseImage(&TempImage);
-
+	printf("largest contour found  \n");
 	/** Smooth the Boundary **/
 	if (Params->BoundSmoothSize>0){
 		TICTOC::timer().tic("SmoothBoundary");
@@ -1101,75 +1099,75 @@ int SegmentWorm(WormAnalysisData* Worm, WormAnalysisParam* Params){
 
 
 	/*** Slice the boundary into left and right components ***/
-	if (Worm->HeadIndex==Worm->TailIndex) printf("Error! Worm->HeadIndex==Worm->TailIndex in SegmentWorm()!\n");
-	CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,1);
-	CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,1);
+	//if (Worm->HeadIndex==Worm->TailIndex) printf("Error! Worm->HeadIndex==Worm->TailIndex in SegmentWorm()!\n");
+	// CvSeq* OrigBoundA=cvSeqSlice(Worm->Boundary,cvSlice(Worm->HeadIndex,Worm->TailIndex),Worm->MemScratchStorage,1);
+	// CvSeq* OrigBoundB=cvSeqSlice(Worm->Boundary,cvSlice(Worm->TailIndex,Worm->HeadIndex),Worm->MemScratchStorage,1);
 
-	if (OrigBoundA->total < Params->NumSegments || OrigBoundB->total < Params->NumSegments ){
-		printf("Error in SegmentWorm():\n\tWhen splitting  the original boundary into two, one or the other has less than the number of desired segments!\n");
-		printf("OrigBoundA->total=%d\nOrigBoundB->total=%d\nParams->NumSegments=%d\n",OrigBoundA->total,OrigBoundB->total,Params->NumSegments);
-		printf("Worm->HeadIndex=%d\nWorm->TailIndex=%d\n",Worm->HeadIndex,Worm->TailIndex);
-		printf("It could be that your worm is just too small\n");
-		return -1; /** Andy make this return -1 **/
+	// if (OrigBoundA->total < Params->NumSegments || OrigBoundB->total < Params->NumSegments ){
+		// printf("Error in SegmentWorm():\n\tWhen splitting  the original boundary into two, one or the other has less than the number of desired segments!\n");
+		// printf("OrigBoundA->total=%d\nOrigBoundB->total=%d\nParams->NumSegments=%d\n",OrigBoundA->total,OrigBoundB->total,Params->NumSegments);
+		// printf("Worm->HeadIndex=%d\nWorm->TailIndex=%d\n",Worm->HeadIndex,Worm->TailIndex);
+		// printf("It could be that your worm is just too small\n");
+		// return -1; /** Andy make this return -1 **/
 
-	}
+	// }
 
-	cvSeqInvert(OrigBoundB);
-
-
-	/*** Resample One of the Two Boundaries so that both are the same length ***/
-
-	//Create sequences to store the Normalized Boundaries
-	CvSeq* NBoundA=	cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
-	CvSeq* NBoundB=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
-
-	//Resample L&R boundary to have the same number of points as min(L,R)
-	if (OrigBoundA->total > OrigBoundB->total){
-		resampleSeq(OrigBoundA,NBoundA,OrigBoundB->total );
-		NBoundB=OrigBoundB;
-	}else{
-		resampleSeq(OrigBoundB,NBoundB,OrigBoundA->total );
-		NBoundA=OrigBoundA;
-	}
-	//Now both NBoundA and NBoundB are the same length.
+	// cvSeqInvert(OrigBoundB);
 
 
+	// /*** Resample One of the Two Boundaries so that both are the same length ***/
 
-	/*
-	 * Now Find the Centerline
-	 *
-	 */
+	////Create sequences to store the Normalized Boundaries
+	// CvSeq* NBoundA=	cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
+	// CvSeq* NBoundB=cvCreateSeq(CV_SEQ_ELTYPE_POINT,sizeof(CvSeq),sizeof(CvPoint),Worm->MemScratchStorage);
 
-	/*** Clear out Stale Centerline Information ***/
-	cvClearSeq(Worm->Centerline);
-
-	/*** Compute Centerline, from Head To Tail ***/
-	FindCenterline(NBoundA,NBoundB,Worm->Centerline);
+	////Resample L&R boundary to have the same number of points as min(L,R)
+	// if (OrigBoundA->total > OrigBoundB->total){
+		// resampleSeq(OrigBoundA,NBoundA,OrigBoundB->total );
+		// NBoundB=OrigBoundB;
+	// }else{
+		// resampleSeq(OrigBoundB,NBoundB,OrigBoundA->total );
+		// NBoundA=OrigBoundA;
+	// }
+	////Now both NBoundA and NBoundB are the same length.
 
 
 
-	/*** Smooth the Centerline***/
-	CvSeq* SmoothUnresampledCenterline = smoothPtSequence (Worm->Centerline, 0.5*Worm->Centerline->total/Params->NumSegments, Worm->MemScratchStorage);
+	// /*
+	 // * Now Find the Centerline
+	 // *
+	 // */
 
-	/*** Note: If you wanted to you could smooth the centerline a second time here. ***/
+	// /*** Clear out Stale Centerline Information ***/
+	// cvClearSeq(Worm->Centerline);
+
+	// /*** Compute Centerline, from Head To Tail ***/
+	// FindCenterline(NBoundA,NBoundB,Worm->Centerline);
 
 
-	/*** Resample the Centerline So it has the specified Number of Points ***/
-	//resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
 
-	resampleSeqConstPtsPerArcLength(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+	// /*** Smooth the Centerline***/
+	// CvSeq* SmoothUnresampledCenterline = smoothPtSequence (Worm->Centerline, 0.5*Worm->Centerline->total/Params->NumSegments, Worm->MemScratchStorage);
 
-	/** Save the location of the centerOfWorm as the point halfway down the segmented centerline **/
-	Worm->Segmented->centerOfWorm= CV_GET_SEQ_ELEM( CvPoint , Worm->Segmented->Centerline, Worm->Segmented->NumSegments / 2 );
+	// /*** Note: If you wanted to you could smooth the centerline a second time here. ***/
 
-	/*** Remove Repeat Points***/
-	//RemoveSequentialDuplicatePoints (Worm->Segmented->Centerline);
 
-	/*** Use Marc's Perpendicular Segmentation Algorithm
-	 *   To Segment the Left and Right Boundaries and store them
-	 */
-	SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
-	return 0;
+	// /*** Resample the Centerline So it has the specified Number of Points ***/
+	////resampleSeq(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+	// resampleSeqConstPtsPerArcLength(SmoothUnresampledCenterline,Worm->Segmented->Centerline,Params->NumSegments);
+
+	// /** Save the location of the centerOfWorm as the point halfway down the segmented centerline **/
+	// Worm->Segmented->centerOfWorm= CV_GET_SEQ_ELEM( CvPoint , Worm->Segmented->Centerline, Worm->Segmented->NumSegments / 2 );
+
+	// /*** Remove Repeat Points***/
+	////RemoveSequentialDuplicatePoints (Worm->Segmented->Centerline);
+
+	// /*** Use Marc's Perpendicular Segmentation Algorithm
+	 // *   To Segment the Left and Right Boundaries and store them
+	 // */
+	// SegmentSides(OrigBoundA,OrigBoundB,Worm->Segmented->Centerline,Worm->Segmented->LeftBound,Worm->Segmented->RightBound);
+	// return 0;
 
 }
 

@@ -76,7 +76,7 @@ FrameGrabber* CreateFrameGrabberObject(){
 FrameGrabber* TurnOnFrameGrabber(){
 	FrameGrabber* fg= CreateFrameGrabberObject();
 	InitializeFrameGrabber(fg);
-	FrameGrabberSetRegionOfInterest(fg,0,0,1024,544); //2048 1088
+	FrameGrabberSetRegionOfInterest(fg,0,0,545,429); //1024,544  2048 1088
 	PrepareFrameGrabberForAcquire(fg);
 	return fg;
 }

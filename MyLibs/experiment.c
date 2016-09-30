@@ -186,7 +186,7 @@ Experiment* CreateExperimentStruct() {
 	exp->stage=NULL;
 	exp->stageVel=cvPoint(0,0);
 	exp->stageCenter=cvPoint(0,0);
-	exp->stageFeedbackTarget=cvPoint(250,200);
+	exp->stageFeedbackTarget=cvPoint(NSIZEX/2,NSIZEY/2); // re-center stage to have worm in center of view
 	exp->stageIsTurningOff=0;	
 
 	/** Macros **/
@@ -382,7 +382,7 @@ void AssignWindowNames(Experiment* exp) {
 	control3 = "EvenMoreControls";
 
 	exp->WinDisp = disp1;
-	exp->WinDisp2=disp2;
+	exp->WinDisp2 = disp2;
 	exp->WinCon1 = control1;
 	exp->WinCon2 = control2;
 	exp->WinCon3 = control3;
@@ -443,8 +443,12 @@ void SetupGUI(Experiment* exp) {
 
 	/** set up GUI windows **/
 	//	cvNamedWindow(exp->WinDisp); // <-- This goes into the thread.
-	cvNamedWindow(exp->WinDisp);
+	cvNamedWindow(exp->WinDisp, CV_WINDOW_NORMAL);
+	cvResizeWindow(exp->WinDisp, 600, 450);
+	cvResizeWindow(exp->WinDisp, 600, 450);
+	cvNamedWindow(exp->WinDisp2, CV_WINDOW_NORMAL);
 	cvNamedWindow(exp->WinDisp2);
+	
 
 	cvNamedWindow(exp->WinCon1);
 	if (exp->FluorMode){
@@ -453,7 +457,6 @@ void SetupGUI(Experiment* exp) {
 		cvResizeWindow(exp->WinCon1, 500, 1000);
 
 	}
-
 	//cvNamedWindow("ProtoIllum");
 
 
@@ -652,8 +655,8 @@ void SetupGUI(Experiment* exp) {
  */
 void UpdateGUI(Experiment* exp) {
 
-		cvSetTrackbarPos("DLPFlashOn", exp->WinCon1, (exp->Params->DLPOnFlash));
-		cvSetTrackbarPos("DLPOn", exp->WinCon1, (exp->Params->DLPOn));
+		//cvSetTrackbarPos("DLPFlashOn", exp->WinCon1, (exp->Params->DLPOnFlash));
+		//cvSetTrackbarPos("DLPOn", exp->WinCon1, (exp->Params->DLPOn));
 
 		/** Illumination Controls **/
 		cvSetTrackbarPos("x", exp->WinCon1, (exp->Params->IllumSquareOrig.x));
@@ -728,8 +731,9 @@ void UpdateGUI(Experiment* exp) {
  * OR open up the video file for reading.
  */
 void RollVideoInput(Experiment* exp) {
-	if (exp->VidFromFile) { /** Use source from file **/
+	if (exp->VidFromFile) { /** Use source from file for Virtual mode **/
 		/** Define the File catpure **/
+		printf("now in virtual mode \n");
 		exp->capture = cvCreateFileCapture(exp->infname);
 
 	} else {
@@ -814,7 +818,7 @@ void InitializeExperiment(Experiment* exp) {
 
 	/*** Create Frames **/
 	Frame* fromCCD = CreateFrame(cvSize(NSIZEX, NSIZEY));
-	//printf("\nIMAGE SIZE PRESET %d\n",NSIZEX);
+	printf("\nIMAGE SIZE PRESET %d\n",NSIZEX);
 	Frame* forDLP = CreateFrame(cvSize(NSIZEX, NSIZEY));
 	Frame* IlluminationFrame = CreateFrame(cvSize(NSIZEX, NSIZEY));
 
@@ -938,6 +942,10 @@ int GrabFrame(Experiment* exp) {
 			/** Check to see if file sizes match **/
 
 			LoadFrameWithBin(exp->fg->HostBuf, exp->fromCCD);
+			// printf(" exp->fromCCD->size.width=%d\n",
+						// exp->fromCCD->size.width);
+				// printf(" exp->fromCCD->size.height=%d\n",
+						// exp->fromCCD->size.height);
 
 		} else {
 
@@ -1216,13 +1224,15 @@ void MarkRecenteringTarget(Experiment* exp){
 	// int C = (int)(exp->Worm->currvelocity.x);
 	int A = (int)(exp->stageFeedbackTarget.x) + (int)(exp->Worm->currvelocity.x);
 	int B = (int)(exp->stageFeedbackTarget.y) + (int)(exp->Worm->currvelocity.y);
-
+//printf("stageFeedbackTarget: x=%d, y=%d, A=%d, B=%d\n",exp->stageFeedbackTarget.x,exp->stageFeedbackTarget.y, A, B);
 	
-	if (abs(A)<550&&abs(B)<500){
+	
+	if (abs(A)<NSIZEX&&abs(B)<NSIZEY){
 	exp->stageFeedbackTarget.x = A; exp->stageFeedbackTarget.y = B;}
+	
 	CvPoint a=cvPoint( (exp->stageFeedbackTarget.x) +5, (exp->stageFeedbackTarget.y) +5);
 	CvPoint b=cvPoint((exp->stageFeedbackTarget.x) -5, (exp->stageFeedbackTarget.y) -5);
-	cvRectangle(exp->HUDS,a,b, cvScalar(255,255,255),5);
+	cvRectangle(exp->SubSampled,a,b, cvScalar(255,255,255),2);
 	//printf("stageFeedbackTarget: x=%d, y=%d, A=%d, B=%d\n",exp->stageFeedbackTarget.x,exp->stageFeedbackTarget.y, A, B);
 	
 	/*Also display tracker status */
@@ -1236,7 +1246,7 @@ void MarkRecenteringTarget(Experiment* exp){
 	
 	/*** Let the user know if the illumination flood light is on ***/
 	if (exp->Params->stageTrackingOn){
-		cvPutText(exp->HUDS,"Tracking",cvPoint(20,130),&font,cvScalar(255,255,255));
+		cvPutText(exp->SubSampled,"Tracking",cvPoint(20,130),&font,cvScalar(255,255,255));
 	} else {
 		//cvPutText(exp->HUDS,"NOT Tracking!!",cvPoint(150,300),&font,cvScalar(255,255,255));
 	}
@@ -1437,7 +1447,7 @@ int HandleKeyStroke(int c, Experiment* exp) {
 			printf("Turning tracking off!\n");
 			exp->stageIsTurningOff=1;
 		} else {
-			printf("Turning trackign on!\n");
+			printf("Turning tracking on!\n");
 		}
 		break;
 	case 'X':
@@ -1514,6 +1524,7 @@ void DoWriteToDisk(Experiment* exp) {
 		TICTOC::timer().toc("cvWriteFrame");
 
 		cvResize(exp->HUDS, exp->SubSampled, CV_INTER_LINEAR);
+		//exp->SubSampled = (exp->SubSampled)*10;
 		if (exp->VidHUDS==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->VidHUDS is NULL\n");
 		if (exp->SubSampled ==NULL ) printf("\tERROR in DoWriteToDisk!\n\texp->exp->Subsampled==NULL\n");
 
@@ -1679,7 +1690,7 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint targe
 	vel.x= CropNumber(-activeZoneRadius,activeZoneRadius, diff.x)*speed;
 	vel.y= CropNumber(-activeZoneRadius,activeZoneRadius, diff.y)*speed;
 
-	//printf("SpinStage: vel.x=%d, vel.y=%d\n",vel.x,vel.y);
+	printf("SpinStage: vel.x=%d, vel.y=%d\n",vel.x,vel.y);
 	spinStage(stage,vel.y,vel.x); //swapped values here to accomodate weird camera angle relative to stage
 
 	return vel;
@@ -1690,7 +1701,7 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint targe
 /*
  * Scan for the USB device.
  */
-/* int InvokeStage(Experiment* exp){
+int InvokeStage(Experiment* exp){
 	exp->stageCenter=cvPoint(NSIZEX/2 , NSIZEY/2 );
 
 	exp->stage=InitializeUsbStage();
@@ -1699,11 +1710,11 @@ CvPoint AdjustStageToKeepObjectAtTarget(HANDLE stage, CvPoint* obj,CvPoint targe
 		exp->Params->stageTrackingOn=0;
 		return 0;
 	} else {
-		printf("Telling stage to HALT.\n");
+		printf("Telling stage to HALT...\n");
 		haltStage(exp->stage);
 	}
 
-} */
+}
 
 
 int ShutOffStage(Experiment* exp){
@@ -1718,9 +1729,32 @@ int ShutOffStage(Experiment* exp){
  * the stage to halt and update flags.
  */
 int HandleStageTracker(Experiment* exp){
-	//if (exp->stageIsPresent==1){ /** If the Stage is Present **/
-		if (exp->stage==NULL) return 0;
+	//printf("stage present? %d \n",exp->stageIsPresent);
+	// int k=1;
+	// int key=0;
+	
+	// float x;
+	// float y;
+	// float t;
+	// t=(float) k;
 		
+		////Generate circle in velocity space
+		// x=1000*sin(t/300);
+		// y=1000*cos(t/300);
+		
+		////Convert floats to int
+		// int vx, vy;
+		// vx=(int) x;
+		// vy= (int) y;
+		
+		// spinStage(exp->stage,vx,vy);
+		
+		
+		
+	if (exp->stageIsPresent==1){ /** If the Stage is Present **/
+		if (exp->stage==NULL) return 0;
+		// printf("worm present? %d \n",exp->Worm->isPresent);
+		// printf("stage tracking on: %d \n",exp->Params->stageTrackingOn);
 				/** If we are tracking but there is nothing to track, turn tracking off but only once **/	
 				if 	(exp->Worm->isPresent ==0 && exp->Params->stageTrackingOn==1){
 					exp->stageIsTurningOff=1;
@@ -1728,44 +1762,32 @@ int HandleStageTracker(Experiment* exp){
 					printf("Shutting off tracking because  Worm is not present to track..\n");
 				}
 		
-		// if (exp->Params->stageTrackingOn==1){
-			// if (exp->Params->OnOff==0){ /** if the analysis system is off **/
-				// /** Turn the stage off **/
-				// exp->stageIsTurningOff=1;
-				// exp->Params->stageTrackingOn=0;
-				// printf("Setting flags to turn stage off in HandleStageTracker()\n");
-			// } else {
+		 if (exp->Params->stageTrackingOn==1){
+			 if (exp->Params->OnOff==0){ /** if the analysis system is off **/
+				 /** Turn the stage off **/
+				 exp->stageIsTurningOff=1;
+				 exp->Params->stageTrackingOn=0;
+				printf("Setting flags to turn stage off in HandleStageTracker()\n");
+			 } else {
 			/** Move the stage to keep the worm centered in the field of view **/
 			
 
 			
 			/** Find The Point on the Worm To Center **/
 			CvPoint* PtOnWorm;
-			
-				// if (exp->Params->FluorMode == 0){
-						
-					// /** Get the Point on the worm some distance along the centerline **/
-					// PtOnWorm = (CvPoint*) cvGetSeqElem(exp->Worm->Segmented->Centerline, exp->Params->stageTargetSegment);
-				
-				// }else{
-						
+					
 					// /** Track based on the centroid of the binary image **/
-					// PtOnWorm = (CvPoint*) exp->Worm->FluorFeatures->centroid;	
-				// }
+					PtOnWorm = (CvPoint*) exp->Worm->FluorFeatures->centroid;	
+					printf("point on worm x=%d, y=%d\n",PtOnWorm);
 
 				
 					/** Adjust the stage velocity to keep that point centered in the field of view **/
 					/** Ni: Adjust stage velocity to match predicted worm velocity **/ 
 					exp->Worm->stageVelocity=AdjustStageToKeepObjectAtTarget(exp->stage,PtOnWorm,exp->stageFeedbackTarget,exp->Params->stageSpeedFactor, exp->Params->stageROIRadius);
-
-					printf("."); // ANDY: Consider removing this if it takes time.. 
-				
-						
-				
-			//}
-		//}
+				}
+		}
 		if (exp->Params->stageTrackingOn==0){/** Tracking Should be off **/
-		//	printf("Tracking is off in HandleStageTracker()\n");
+			//printf("Tracking is off in HandleStageTracker()\n");
 			/** If we are in the process of turning tacking off **/
 			if (exp->stageIsTurningOff==1){
 				/** Tell the stage to Halt **/
@@ -1778,7 +1800,7 @@ int HandleStageTracker(Experiment* exp){
 			//printf("The stage is already halted in HandleStageTracker()\n.");
 		}
 
-	//}
+	}
 	return 0;
 }
 

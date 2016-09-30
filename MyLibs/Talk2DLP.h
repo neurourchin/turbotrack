@@ -56,7 +56,7 @@ int T2DLP_clear(long myDLP);
  *  Which is XGA .55 Type X
  *  1024 by 768 mirrors
  */
-#define NSIZEX 1024//2048
-#define NSIZEY 544//1088
+#define NSIZEX 545//1024//2048
+#define NSIZEY 429//544//1088
 
 #endif /* TALK2DLP_H_ */

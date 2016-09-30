@@ -133,6 +133,7 @@ int main (int argc, char** argv){
 
 	VerifyProtocol(exp->p);
 
+	//printf("READING VIDEO....................\n");
 	/** Start Camera or Vid Input **/
 	RollVideoInput(exp);
 
@@ -383,8 +384,8 @@ UINT Thread(LPVOID lpdwParam) {
 			TICTOC::timer().tic("DisplayThreadGuts");
 			TICTOC::timer().tic("cvShowImage");
 			if (exp->Params->OnOff){
-				cvShowImage(exp->WinDisp, exp->SubSampled);
-				//cvShowImage(exp->WinDisp2,exp->Worm->ImgThresh);//exp->CurrentSelectedImg);
+				cvShowImage(exp->WinDisp, exp->HUDS);
+				cvShowImage(exp->WinDisp2,exp->Worm->ImgThresh);//exp->CurrentSelectedImg);
 			}else{
 				cvShowImage(exp->WinDisp, exp->fromCCD->iplimg);
 			}
